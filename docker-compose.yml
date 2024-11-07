@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+
+  grafanaprometheustest:
+      container_name: GrafanaPrometheusTest
+      restart: always
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Production
+        - ASPNETCORE_URLS=http://+:80
+      ports:
+        - "5000:80"
+      networks:
+        - myappnetwork
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "5100:9090"
+    environment:
+      - TZ=UTC
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+networks:
+  myappnetwork:
+    name: myappnetwork
+    driver: bridge
